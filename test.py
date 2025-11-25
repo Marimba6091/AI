@@ -1,4 +1,3 @@
-import pandas
-
-
-df = pandas.read_json("train_data.json")
+a = [True, True]
+a.insert(0, 0)
+print(a)
