@@ -101,6 +101,5 @@ test_input = np.array(file)
 pr = nn.predict(test_input)
 for x, i in enumerate(pr):
     print(f"{x} - {i:.7f}")
-print(",".join(list(map(str, file))))
 if bool(input("3>> ")):
     nn.write(nn.loss)
