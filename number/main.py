@@ -92,3 +92,4 @@ test_input = np.array(f)
 pr = nn.predict(test_input)
 for x, i in enumerate(pr):
     print(f"{x} - {i:.7f}")
+print(f)
