@@ -3,8 +3,8 @@ import normalize_data as nrd
 from PIL import Image
 
 file = "input.png"
-dct = {4:"0,0,0,0,1,0,0,0,0,0", 2:"0,0,1,0,0,0,0,0,0,0", 0:"1,0,0,0,0,0,0,0,0,0", 3:"0,0,0,1,0,0,0,0,0,0"}
-number = 3
+dct = {4:"0,0,0,0,1,0,0,0,0,0", 2:"0,0,1,0,0,0,0,0,0,0", 0:"1,0,0,0,0,0,0,0,0,0", 3:"0,0,0,1,0,0,0,0,0,0", 1:"0,1,0,0,0,0,0,0,0,0"}
+number = 1
 b = os.path.getsize(file)
 while True:
     if b != os.path.getsize(file):
