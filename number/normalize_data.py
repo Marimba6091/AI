@@ -7,8 +7,7 @@ class Img_to_matrix:
     
     def get_data(self):
         self.__img = self._get_last_pxl()
-        if self.__width - self.__heigth + self.__width != 16:
-            self.__img = self.__img.resize((16, 16))
+        self.__img = self.__img.resize((16, 16))
         self.__img = self._convert()
         return self._cross()
 
@@ -24,8 +23,6 @@ class Img_to_matrix:
         return self.__img.convert("1")
 
     def _get_last_pxl(self):
-        if self.__width - self.__heigth + self.__width == 16:
-            return self.__img
         fw, fh, lw, lh = self.__width,self.__heigth,0,0
 
         for w in range(self.__width):
@@ -95,7 +92,7 @@ class Matrix_to_img:
 
 if __name__ == "__main__":
     dct = {4:"0,0,0,0,1,0,0,0,0,0", 2:"0,0,1,0,0,0,0,0,0,0", 0:"1,0,0,0,0,0,0,0,0,0"}
-    cls = Matrix_to_img([1,7,15,15,15,11,3,0,15,15,14,0,12,13,15,11,4,15,15,15,11,7,15,15,0,0,4,12,12,12,15,15,0,0,0,0,0,0,15,15,0,0,0,0,0,1,15,14,0,0,0,0,0,7,15,8,5,15,15,15,15,15,8,0])
-    #cls = Img_to_matrix(Image.open("number/imgs/9.png")).get_data()
-    #print(f"{",".join(list(map(str, cls)))} {dct[0]}")
+    #cls = Matrix_to_img([0,1,15,12,15,15,3,0,0,15,8,0,0,4,13,11,0,15,0,0,0,0,0,15,0,13,11,0,0,0,0,15,0,0,13,11,2,0,7,14,0,0,0,4,12,15,15,8,0,0,0,0,7,14,0,0,15,11,7,15,12,0,0,0])
+    cls = Img_to_matrix(Image.open("input.png")).get_data()
+    print(f"{",".join(list(map(str, cls)))} {dct[0]}")
     
