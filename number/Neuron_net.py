@@ -51,7 +51,7 @@ class NN:
         return o
 
     def train(self, data):
-        epochs = 20000
+        epochs = 4000
         lmd = .01
         for epoch in range(epochs):
             for x, y_true in data:
