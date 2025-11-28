@@ -12,6 +12,9 @@ def d_sig(x):
 
 class NN:
     def __init__(self):
+        self.__start_weights()
+    
+    def __start_weights(self):
         self.__w1 = np.random.normal(size=(64, 32))
         self.__w2 = np.random.normal(size=(32, 16))
         self.__w3 = np.random.normal(size=(16, 10))
@@ -21,10 +24,19 @@ class NN:
         self.__b3 = np.zeros((10,))
 
         self.__loss = 0
-    
+        self.__is_set_data = False
+
     @property
     def loss(self):
         return self.__loss
+    
+    @property
+    def is_set_data(self):
+        return self.__is_set_data
+    
+    def __clear_json(self):
+        df = pandas.DataFrame({"_NN__loss":{"0":1}})
+        df.to_json("number/train_data.json")
     
     def set_data_from(self, x):
         df = pandas.read_json(x)
@@ -34,12 +46,13 @@ class NN:
         self.__b1 = np.array(df["_NN__b1"][0])
         self.__b2 = np.array(df["_NN__b2"][0])
         self.__b3 = np.array(df["_NN__b3"][0])
+        self.__is_set_data = True
     
     def write(self, loss):
         if loss < pandas.read_json("number/train_data.json")["_NN__loss"][0]:
             dataframe = {}
             for key, val in self.__dict__.items():
-                dataframe[key] = [val.tolist()]
+                dataframe[key] = [val.tolist() if hasattr(val, "tolist") else val]
             df = pandas.DataFrame(dataframe)
             df.to_json("number/train_data.json")
 
@@ -50,9 +63,10 @@ class NN:
         o = sig(np.dot(n2, self.__w3) + self.__b3)
         return o
 
-    def train(self, data):
-        epochs = 4000
-        lmd = .01
+    def train(self, data, epochs = 4000, lmd = .01, clear=False):
+        if clear:
+            self.__clear_json()
+            self.__start_weights()
         for epoch in range(epochs):
             for x, y_true in data:
                 x_n = x / 15
