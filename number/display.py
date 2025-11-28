@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter.messagebox import *
+from tkinter import ttk
 import io
 import numpy as np
 from PIL import ImageGrab
@@ -14,6 +15,9 @@ def painting(event):
 
 def clear(event=None):
     global display
+    l.config(text="none")
+    for i in progress:
+        i[1]["value"] = 0
     display.delete("all")
 
 def get_img(event=None):
@@ -27,16 +31,23 @@ def get_img(event=None):
     img.save("input.png")
     matrix = np.array(Img_to_matrix(img).get_data())
     predict = nn.predict(matrix)
-    l.config(text=f"{np.argmax(predict)}")
+    if sum(predict) > .4:
+        l.config(text=f"{np.argmax(predict)}")
+    else:
+        l.config(text="none")
+    for x, y in enumerate(predict):
+        progress[x][1]["value"] = int(y * 100)
 
 def save_data(event):
-    if askyesno(title="Подтвержение операции", message="Подтвердить операцию?"):
+    if askyesno(title="Подтвержение операции", message=f"Это действительно {event.keysym}?"):
         x = win.winfo_rootx() + display.winfo_x()
         y = win.winfo_rooty() + display.winfo_y()
         x1 = x + display.winfo_width()
         y1 = y + display.winfo_height()
-        with open("number/data.txt", "a") as file:
-            file.write(f"\n{",".join(list(map(str, Img_to_matrix(ImageGrab.grab().crop((x+5, y+5, x1-5, y1-5))).get_data())))} {out_for_data[int(event.keysym)]}")
+        matrix = Img_to_matrix(ImageGrab.grab().crop((x+5, y+5, x1-5, y1-5))).get_data()
+        if matrix:
+            with open("number/data.txt", "a") as file:
+                file.write(f"\n{",".join(list(map(str, matrix)))} {out_for_data[int(event.keysym)]}")
 
 def train_nn(event):
     ask = askyesnocancel(title="По вопросам образования", message="Продолжить обучение с нынешними данными?")
@@ -55,7 +66,7 @@ def train_nn(event):
 
 win = Tk()
 win.title("Canvas")
-win.geometry("350x550")
+win.geometry("350x650")
 win.resizable(0, 0)
 win.config(bg="#C6BC96")
 
@@ -67,19 +78,19 @@ display.pack()
 l = Label(text="none", font=("Arial", 25), bg="#C6BC96")
 l.pack()
 
+progress = []
+F_progress = Frame(bg="#C6BC96")
+F_progress.pack()
+for i in range(10):
+    progress.append([Label(F_progress, text=f"{i}", bg="#C6BC96"), ttk.Progressbar(F_progress, length=150)])
+    progress[-1][0].grid(column=0, row=i)
+    progress[-1][1].grid(column=1, row=i)
+
 win.bind("<B1-Motion>", painting)
 win.bind('<BackSpace>', clear)
 win.bind("<Return>", get_img)
-win.bind("<Key-1>", save_data)
-win.bind("<Key-2>", save_data)
-win.bind("<Key-3>", save_data)
-win.bind("<Key-4>", save_data)
-win.bind("<Key-5>", save_data)
-win.bind("<Key-6>", save_data)
-win.bind("<Key-7>", save_data)
-win.bind("<Key-8>", save_data)
-win.bind("<Key-9>", save_data)
-win.bind("<Key-0>", save_data)
 win.bind("<space>", train_nn)
+for i in range(10):
+    win.bind(f"<Key-{i}>", save_data)
 
 win.mainloop()

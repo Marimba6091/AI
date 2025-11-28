@@ -130,7 +130,7 @@ input_ = list(map(float, input(">>> ").replace(" ", "").split(",")))
 predict = nn.predict(np.array(input_))
 ask = get_ask(round_(predict))
 if ask:
-   print(f"species - {ask}\npredict - {predict:.5f}")
+    print(f"species - {ask}\npredict - {predict:.5f}")
 else:
-   print(f"ИИ не смог определить цветок\npredict - {predict}")
+    print(f"ИИ не смог определить цветок\npredict - {predict}")
 print(tg(3))

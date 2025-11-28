@@ -46,15 +46,15 @@ class NN:
         self.__b1 = np.array(df["_NN__b1"][0])
         self.__b2 = np.array(df["_NN__b2"][0])
         self.__b3 = np.array(df["_NN__b3"][0])
+
         self.__is_set_data = True
     
     def write(self, loss):
-        if loss < pandas.read_json("number/train_data.json")["_NN__loss"][0]:
-            dataframe = {}
-            for key, val in self.__dict__.items():
-                dataframe[key] = [val.tolist() if hasattr(val, "tolist") else val]
-            df = pandas.DataFrame(dataframe)
-            df.to_json("number/train_data.json")
+        dataframe = {}
+        for key, val in self.__dict__.items():
+            dataframe[key] = [val.tolist() if hasattr(val, "tolist") else val]
+        df = pandas.DataFrame(dataframe)
+        df.to_json("number/train_data.json")
 
     def predict(self, x):
         x_n = x / 15
@@ -63,7 +63,7 @@ class NN:
         o = sig(np.dot(n2, self.__w3) + self.__b3)
         return o
 
-    def train(self, data, epochs = 4000, lmd = .01, clear=False):
+    def train(self, data, epochs = 8000, lmd = .001, clear=False):
         if clear:
             self.__clear_json()
             self.__start_weights()
@@ -78,6 +78,7 @@ class NN:
 
                 D_n3 = error * d_sig(y_pred)
 
+
                 D_n2 = np.dot(D_n3, self.__w3.T) * d_sig(n2)
 
                 D_n1 = np.dot(D_n2, self.__w2.T) * d_sig(n1)
@@ -89,7 +90,7 @@ class NN:
                 self.__b3 -= lmd * D_n3
                 self.__b2 -= lmd * D_n2
                 self.__b1 -= lmd * D_n1
-            if not epoch % 100:
+            if not epoch % 10:
                 self.__loss = ((y_pred - y_true).mean() ** 2)
                 print(f"{self.__loss:.15f} - {epoch}")
                 self.write(self.__loss)

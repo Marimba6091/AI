@@ -9,7 +9,19 @@ class Img_to_matrix:
         self.__img = self._get_last_pxl()
         self.__img = self.__img.resize((16, 16))
         self.__img = self._convert()
-        return self._cross()
+        if self._test():
+            return self._cross()
+        return False
+
+    def _test(self):
+        score = 0
+        for y in range(16):
+            for x in range(16):
+                if self.__img.getpixel((x, y)):
+                    score += 1
+        if score > 230:
+            return False
+        return True
 
     def _convert(self):
         if not isinstance(self.__img.getpixel((0, 0)), int):
@@ -91,6 +103,6 @@ class Matrix_to_img:
         
 out_for_data = {4:"0,0,0,0,1,0,0,0,0,0", 2:"0,0,1,0,0,0,0,0,0,0", 0:"1,0,0,0,0,0,0,0,0,0", 3:"0,0,0,1,0,0,0,0,0,0", 1:"0,1,0,0,0,0,0,0,0,0", 5:"0,0,0,0,0,1,0,0,0,0", 6:"0,0,0,0,0,0,1,0,0,0", 7:"0,0,0,0,0,0,0,1,0,0", 8:"0,0,0,0,0,0,0,0,1,0", 9:"0,0,0,0,0,0,0,0,0,1"}
 if __name__ == "__main__":
-    cls = Matrix_to_img([0,0,0,0,0,0,15,13,0,0,0,0,0,0,15,12,0,0,0,0,0,5,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+    cls = Matrix_to_img([0,0,0,7,10,0,0,0,3,3,7,15,0,0,0,0,15,14,12,15,0,0,0,0,4,8,0,13,10,0,0,0,0,0,0,4,15,0,0,0,0,0,0,0,5,11,0,0,0,0,0,0,0,13,11,0,0,0,0,0,0,0,13,15])
     #cls = Img_to_matrix(Image.open("input.png")).get_data()
     #print(f"{",".join(list(map(str, cls)))} {out_for_data[0]}")
