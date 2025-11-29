@@ -63,7 +63,7 @@ class NN:
         o = sig(np.dot(n2, self.__w3) + self.__b3)
         return o
 
-    def train(self, data, epochs = 8000, lmd = .001, clear=False):
+    def train(self, data, epochs = 8000, lmd = .01, clear=False):
         if clear:
             self.__clear_json()
             self.__start_weights()
@@ -90,9 +90,9 @@ class NN:
                 self.__b3 -= lmd * D_n3
                 self.__b2 -= lmd * D_n2
                 self.__b1 -= lmd * D_n1
-            if not epoch % 10:
+            if not (epoch + 1) % 10:
                 self.__loss = ((y_pred - y_true).mean() ** 2)
-                print(f"{self.__loss:.15f} - {epoch}")
+                print(f"{self.__loss:.15f} - {epoch + 1}")
                 self.write(self.__loss)
 
 if __name__ == "__main__":

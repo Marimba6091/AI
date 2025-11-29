@@ -1,11 +1,11 @@
 from tkinter import *
 from tkinter.messagebox import *
 from tkinter import ttk
-import io
 import numpy as np
 from PIL import ImageGrab
-from normalize_data import Img_to_matrix, Matrix_to_img, out_for_data
+from normalize_data import Img_to_matrix, out_for_data
 from Neuron_net import NN
+import keyboard as kb
 
 def painting(event):
     global display
@@ -64,6 +64,14 @@ def train_nn(event):
                 print(f[0], f[1])
         nn.train(file_data, epochs=1000, lmd=0.1, clear=ask)
 
+def enter_canvas(event):
+    global on_canvas
+    on_canvas = True
+
+def leave_canvas(event):
+    global on_canvas
+    on_canvas = False
+
 win = Tk()
 win.title("Canvas")
 win.geometry("350x650")
@@ -71,6 +79,8 @@ win.resizable(0, 0)
 win.config(bg="#C6BC96")
 
 nn = NN()
+
+on_canvas = False
 
 display = Canvas(width=350, height=350, bg="#FFFFFF")
 display.pack()
@@ -90,6 +100,8 @@ win.bind("<B1-Motion>", painting)
 win.bind('<BackSpace>', clear)
 win.bind("<Return>", get_img)
 win.bind("<space>", train_nn)
+display.bind("<Enter>", enter_canvas)
+display.bind("<Leave>", leave_canvas)
 for i in range(10):
     win.bind(f"<Key-{i}>", save_data)
 
