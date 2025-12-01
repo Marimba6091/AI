@@ -8,11 +8,20 @@ import numpy as np
 from normalize_data import Img_to_matrix, out_for_data
 from Neuron_net import NN
 
+def update(loss=False, epoch=False):
+    global Loss, win
+    if epoch:
+        Loss.config(text=f"{loss:.15f} - {epoch + 1}")
+    else:
+        Loss.config(text="")
+    win.update()
+
 def painting(event):
     global display
     x = event.x
     y = event.y
-    display.create_oval(x-5, y-5, x+5, y+5, fill="#000000")
+    r = 3
+    display.create_oval(x-r, y-r, x+r, y+r, fill="#000000")
 
 def clear(event=None):
     global display
@@ -51,7 +60,7 @@ def save_data(event):
 
 def train_nn(event):
     ask = askyesnocancel(title="По вопросам образования", message="Продолжить обучение с нынешними данными?")
-    if not ask is None:
+    if not (ask is None):
         if ask:
             nn.set_data_from("number/train_data.json")
         file = open("number/data.txt")
@@ -62,7 +71,7 @@ def train_nn(event):
                 file_data.append((np.array(list(map(int, f[0].split(",")))), (np.array(list(map(int, f[1].split(",")))))))
             except:
                 print(f[0], f[1])
-        nn.train(file_data, epochs=1000, lmd=0.1, clear=ask)
+        nn.train(file_data, epochs=1000, lmd=.1, clear=not ask)
 
 def enter_canvas(event):
     global on_canvas
@@ -78,7 +87,7 @@ win.geometry("350x650")
 win.resizable(0, 0)
 win.config(bg="#C6BC96")
 
-nn = NN()
+nn = NN(func=update)
 
 on_canvas = False
 
@@ -95,6 +104,9 @@ for i in range(10):
     progress.append([Label(F_progress, text=f"{i}", bg="#C6BC96"), ttk.Progressbar(F_progress, length=150)])
     progress[-1][0].grid(column=0, row=i)
     progress[-1][1].grid(column=1, row=i)
+
+Loss = Label(bg="#C6BC96")
+Loss.pack(anchor=CENTER)
 
 win.bind("<B1-Motion>", painting)
 win.bind('<BackSpace>', clear)

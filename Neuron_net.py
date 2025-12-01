@@ -2,19 +2,24 @@ from PIL import Image
 import numpy as np
 import pandas
 
-import number.MSE as MSE
+import number.MSE as MSE_
 import normalize_data as nrd
 
 
 def sig(x):
-    return 1 / (1 + np.exp(-x).item())
+    return 1 / (1 + np.exp(-x))
 
 def d_sig(x):
     return x * (1 - x)
 
+def update(loss=False, epoch=False):
+    print(f"{loss:.15f} - {epoch + 1}")
+
+
 class NN:
-    def __init__(self):
+    def __init__(self, func=False):
         self.__start_weights()
+        self.__func = func
     
     def __start_weights(self):
         self.__w1 = np.random.normal(size=(64, 32))
@@ -64,7 +69,7 @@ class NN:
         o = sig(np.dot(n2, self.__w3) + self.__b3)
         return o
 
-    def train(self, data, epochs = 8000, lmd = .1, clear=False):
+    def train(self, data, epochs = 2500, lmd = .1, clear=False):
         if clear:
             self.__clear_json()
             self.__start_weights()
@@ -78,7 +83,6 @@ class NN:
 
                 D_n3 = error * d_sig(y_pred)
 
-
                 D_n2 = np.dot(D_n3, self.__w3.T) * d_sig(n2)
 
                 D_n1 = np.dot(D_n2, self.__w2.T) * d_sig(n1)
@@ -90,13 +94,17 @@ class NN:
                 self.__b3 -= lmd * D_n3
                 self.__b2 -= lmd * D_n2
                 self.__b1 -= lmd * D_n1
+
             if not (epoch + 1) % 10:
-                self.__loss = MSE.MSE(y_pred, y_true)
-                print(f"{self.__loss:.15f} - {epoch + 1}")
+                self.__loss = MSE_.MSE(y_pred, y_true)
+                if self.__func:
+                    self.__func(self.__loss, epoch)
                 self.write(self.__loss)
+        if self.__func:
+            self.__func()
 
 if __name__ == "__main__":
-    nn = NN()
+    nn = NN(func=update)
     is_train = bool(input("1>> "))
     is_the_best_data = not bool(input("2>> "))
     if is_the_best_data:
@@ -116,6 +124,5 @@ if __name__ == "__main__":
     pr = nn.predict(test_input)
     for x, i in enumerate(pr):
         print(f"{x} - {i:.7f}")
-    print(pr)
     if bool(input("3>> ")):
         nn.write(nn.loss)
