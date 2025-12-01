@@ -1,11 +1,13 @@
-import numpy as np
-import normalize_data as nrd
 from PIL import Image
+import numpy as np
 import pandas
+
+import number.MSE as MSE
+import normalize_data as nrd
 
 
 def sig(x):
-    return 1 / (1 + np.exp(-x))
+    return 1 / (1 + np.exp(-x).item())
 
 def d_sig(x):
     return x * (1 - x)
@@ -57,20 +59,18 @@ class NN:
         df.to_json("number/train_data.json")
 
     def predict(self, x):
-        x_n = x / 15
-        n1 = sig(np.dot(x_n, self.__w1) + self.__b1)
+        n1 = sig(np.dot(x, self.__w1) + self.__b1)
         n2 = sig(np.dot(n1, self.__w2) + self.__b2)
         o = sig(np.dot(n2, self.__w3) + self.__b3)
         return o
 
-    def train(self, data, epochs = 8000, lmd = .01, clear=False):
+    def train(self, data, epochs = 8000, lmd = .1, clear=False):
         if clear:
             self.__clear_json()
             self.__start_weights()
         for epoch in range(epochs):
             for x, y_true in data:
-                x_n = x / 15
-                n1 = sig(np.dot(x_n, self.__w1) + self.__b1)
+                n1 = sig(np.dot(x, self.__w1) + self.__b1)
                 n2 = sig(np.dot(n1, self.__w2) + self.__b2)
                 y_pred = sig(np.dot(n2, self.__w3) + self.__b3)
 
@@ -85,13 +85,13 @@ class NN:
 
                 self.__w3 -= lmd * np.outer(n2, D_n3)
                 self.__w2 -= lmd * np.outer(n1, D_n2)
-                self.__w1 -= lmd * np.outer(x_n, D_n1)
+                self.__w1 -= lmd * np.outer(x, D_n1)
 
                 self.__b3 -= lmd * D_n3
                 self.__b2 -= lmd * D_n2
                 self.__b1 -= lmd * D_n1
             if not (epoch + 1) % 10:
-                self.__loss = ((y_pred - y_true).mean() ** 2)
+                self.__loss = MSE.MSE(y_pred, y_true)
                 print(f"{self.__loss:.15f} - {epoch + 1}")
                 self.write(self.__loss)
 
@@ -116,5 +116,6 @@ if __name__ == "__main__":
     pr = nn.predict(test_input)
     for x, i in enumerate(pr):
         print(f"{x} - {i:.7f}")
+    print(pr)
     if bool(input("3>> ")):
         nn.write(nn.loss)

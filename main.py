@@ -1,11 +1,12 @@
 from tkinter import *
 from tkinter.messagebox import *
 from tkinter import ttk
-import numpy as np
+
 from PIL import ImageGrab
+import numpy as np
+
 from normalize_data import Img_to_matrix, out_for_data
 from Neuron_net import NN
-import keyboard as kb
 
 def painting(event):
     global display
@@ -28,7 +29,6 @@ def get_img(event=None):
     x1 = x + display.winfo_width()
     y1 = y + display.winfo_height()
     img = ImageGrab.grab().crop((x+5, y+5, x1-5, y1-5))
-    img.save("input.png")
     matrix = np.array(Img_to_matrix(img).get_data())
     predict = nn.predict(matrix)
     if sum(predict) > .4:
