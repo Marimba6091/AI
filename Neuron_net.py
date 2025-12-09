@@ -22,13 +22,15 @@ class NN:
         self.__func = func
     
     def __start_weights(self):
-        self.__w1 = np.random.normal(size=(64, 32))
-        self.__w2 = np.random.normal(size=(32, 16))
-        self.__w3 = np.random.normal(size=(16, 10))
+        self.__w1 = np.random.normal(size=(64, 48))
+        self.__w2 = np.random.normal(size=(48, 32))
+        self.__w3 = np.random.normal(size=(32, 16))
+        self.__w4 = np.random.normal(size=(16, 10))
 
-        self.__b1 = np.zeros((32,))
-        self.__b2 = np.zeros((16,))
-        self.__b3 = np.zeros((10,))
+        self.__b1 = np.zeros((48,))
+        self.__b2 = np.zeros((32,))
+        self.__b3 = np.zeros((16,))
+        self.__b4 = np.zeros((10,))
 
         self.__loss = 0
         self.__is_set_data = False
@@ -50,9 +52,11 @@ class NN:
         self.__w1 = np.array(df["_NN__w1"][0])
         self.__w2 = np.array(df["_NN__w2"][0])
         self.__w3 = np.array(df["_NN__w3"][0])
+        self.__w4 = np.array(df["_NN__w4"][0])
         self.__b1 = np.array(df["_NN__b1"][0])
         self.__b2 = np.array(df["_NN__b2"][0])
         self.__b3 = np.array(df["_NN__b3"][0])
+        self.__b4 = np.array(df["_NN__b4"][0])
 
         self.__is_set_data = True
     
@@ -66,10 +70,11 @@ class NN:
     def predict(self, x):
         n1 = sig(np.dot(x, self.__w1) + self.__b1)
         n2 = sig(np.dot(n1, self.__w2) + self.__b2)
-        o = sig(np.dot(n2, self.__w3) + self.__b3)
+        n3 = sig(np.dot(n2, self.__w3) + self.__b3)
+        o = sig(np.dot(n3, self.__w4) + self.__b4)
         return o
 
-    def train(self, data, epochs = 2500, lmd = .1, clear=False):
+    def train(self, data, epochs = 5000, lmd = .1, clear=False):
         if clear:
             self.__clear_json()
             self.__start_weights()
@@ -77,20 +82,25 @@ class NN:
             for x, y_true in data:
                 n1 = sig(np.dot(x, self.__w1) + self.__b1)
                 n2 = sig(np.dot(n1, self.__w2) + self.__b2)
-                y_pred = sig(np.dot(n2, self.__w3) + self.__b3)
+                n3 = sig(np.dot(n2, self.__w3) + self.__b3)
+                y_pred = sig(np.dot(n3, self.__w4) + self.__b4)
 
                 error = y_pred - y_true
 
-                D_n3 = error * d_sig(y_pred)
+                D_n4 = error * d_sig(y_pred)
+
+                D_n3 = np.dot(D_n4, self.__w4.T) * d_sig(n3)
 
                 D_n2 = np.dot(D_n3, self.__w3.T) * d_sig(n2)
 
                 D_n1 = np.dot(D_n2, self.__w2.T) * d_sig(n1)
 
+                self.__w4 -= lmd * np.outer(n3, D_n4)
                 self.__w3 -= lmd * np.outer(n2, D_n3)
                 self.__w2 -= lmd * np.outer(n1, D_n2)
                 self.__w1 -= lmd * np.outer(x, D_n1)
 
+                self.__b4 -= lmd * D_n4
                 self.__b3 -= lmd * D_n3
                 self.__b2 -= lmd * D_n2
                 self.__b1 -= lmd * D_n1
@@ -98,7 +108,10 @@ class NN:
             if not (epoch + 1) % 10:
                 self.__loss = MSE_.MSE(y_pred, y_true)
                 if self.__func:
-                    self.__func(self.__loss, epoch)
+                    try:
+                        self.__func(self.__loss, epoch)
+                    except:
+                        pass
                 self.write(self.__loss)
         if self.__func:
             self.__func()
